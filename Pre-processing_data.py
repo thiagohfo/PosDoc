@@ -37,14 +37,12 @@ del encode
 
 #Remover amostras com dados importantes como faltosos, as entradas são colunas para analizar
 def delete_rows_NA_values(columns_analyze):
-    columnsToAnalyze = columns_analyze
-    data.dropna(how='any', subset=columnsToAnalyze, inplace=True)
+    data.dropna(how='any', subset=columns_analyze, inplace=True)
 
 
 #Deletando algumas colunas irrelevantes
 def delete_columns(columns_list):
-    columnsToDel = columns_list
-    data.drop(columnsToDel, axis=1, inplace=True)
+    data.drop(columns_list, axis=1, inplace=True)
 
 
 #Deleta amostras (rows) com valores diferentes (ou iguais) ao do parâmetro 'value', se baseando na columa 'column'
@@ -100,11 +98,11 @@ def add_column(columns):
         data.insert((i + 3), column, '', True)
 
 #Colunas para analisar os dados e deletar as amostras
-columnsToAnalyze = ['evolucaoCaso', 'sintomas', 'profissionalSaude', 'tipoTeste', 'resultadoTeste']
+columns_analyze = ['evolucaoCaso', 'sintomas', 'profissionalSaude', 'tipoTeste', 'resultadoTeste']
 
 
 #Colunas para deletar
-columnsToDel = ['ÿid', 'dataNascimento', 'estadoTeste', 'paisOrigem', 'municipioIBGE', 'origem', 'estadoNotificacao',
+columns_del = ['ÿid', 'dataNascimento', 'estadoTeste', 'paisOrigem', 'municipioIBGE', 'origem', 'estadoNotificacao',
                 'estadoNotificacaoIBGE', 'municipioNotificacao', 'estado', 'estadoIBGE', 'excluido', 'validado',
                 'dataEncerramento', 'dataTeste', 'municipio', 'municipioNotificacaoIBGE', 'cbo', 'dataNotificacao',
                 'dataInicioSintomas', 'classificacaoFinal']
@@ -116,9 +114,9 @@ features = [['cardiacas', 'diabetes', 'respiratorias', 'renais', 'imunologica', 
 colunas = ['condicoes', 'sintomas']
 
 
-delete_rows_NA_values(columnsToAnalyze)
+delete_rows_NA_values(columns_analyze)
 delete_rows_by_value('tipoTeste', 'RT-PCR')
-del columnsToAnalyze
+del columns_analyze
 
 
 #Consertando um probleminha de datas com valores ausentes para poder aplicar funções
@@ -138,8 +136,8 @@ dataNotificacao = pd.to_datetime(data['dataNotificacao'], format='%Y-%m-%d')
 dataInicioSintomas = pd.to_datetime(data['dataInicioSintomas'], format='%Y-%m-%d')
 data.insert(2, "diasSintomas", (dataNotificacao - dataInicioSintomas).dt.days, True)
 
-delete_columns(columnsToDel)
-del columnsToDel
+delete_columns(columns_del)
+del columns_del
 
 
 #Adiciona os sintomas e condicoes como coluna no dataset
