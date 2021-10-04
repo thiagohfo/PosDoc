@@ -53,18 +53,18 @@ Y = data['resultadoTeste'].astype(float)
 
 
 #
-lasso_coef = []
+rr_coef = []
 for i in [1, 0.01, 100]:
-    lasso_coef.append(prediction(data[symptoms], data['resultadoTeste'], i))
+    rr_coef.append(prediction(data[symptoms], data['resultadoTeste'], i))
 
 lr_coef = prediction_lr(data[symptoms], data['resultadoTeste'])
 
-plt.plot(lasso_coef[0],alpha=0.7, linestyle='none', marker='*', markersize=5, color='red', label=r'Ridge; $\alpha = 1$',zorder=7)
-plt.plot(lasso_coef[1],alpha=0.5, linestyle='none', marker='d', markersize=6, color='blue', label=r'Ridge; $\alpha = 0.01$')
-plt.plot(lasso_coef[2],alpha=0.8, linestyle='none', marker='v', markersize=6, color='black', label=r'Ridge; $\alpha = 100$')
+plt.plot(rr_coef[0], alpha=0.7, linestyle='none', marker='*', markersize=5, color='red', label=r'Ridge; $\alpha = 1$', zorder=7)
+plt.plot(rr_coef[1], alpha=0.5, linestyle='none', marker='d', markersize=6, color='blue', label=r'Ridge; $\alpha = 0.01$')
+plt.plot(rr_coef[2], alpha=0.8, linestyle='none', marker='v', markersize=6, color='black', label=r'Ridge; $\alpha = 100$')
 plt.plot(lr_coef, alpha=0.7, linestyle='none', marker='o', markersize=5, color='green', label='Linear Regression', zorder=2)
-plt.xlabel('Coeficientes',fontsize=16)
-plt.ylabel('Magnitude do Coeficiente',fontsize=16)
-plt.legend(fontsize=13,loc=4)
+plt.xlabel('Coeficientes', fontsize=16)
+plt.ylabel('Magnitude do Coeficiente', fontsize=16)
+plt.legend(fontsize=13, loc=4)
 plt.tight_layout()
 plt.show()

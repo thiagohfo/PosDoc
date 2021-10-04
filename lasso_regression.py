@@ -35,6 +35,7 @@ def prediction_lr(X, Y, test_size_t=0.3, random_state_t=0):
     print("Predição: {}".format(yhat))
     print("Train Score: {}".format(train_score))
     print("Test Score: {}".format(test_score))
+
     return lr.coef_
 
 
@@ -60,7 +61,7 @@ for i in [1, 0.01, 0.00001]:
 
 lr_coef = prediction_lr(data[symptoms], data['resultadoTeste'])
 
-plt.plot(lasso_coef[0],alpha=0.7, linestyle='none', marker='*', markersize=5, color='red', label=r'Lasso; $\alpha = 1$',zorder=7)
+plt.plot(lasso_coef[0],alpha=0.7, linestyle='none', marker='*', markersize=5, color='red', label=r'Lasso; $\alpha = 1$', zorder=7)
 plt.plot(lasso_coef[1],alpha=0.5, linestyle='none', marker='d', markersize=6, color='blue', label=r'Lasso; $\alpha = 0.01$')
 plt.plot(lasso_coef[2],alpha=0.8, linestyle='none', marker='v', markersize=6, color='black', label=r'Lasso; $\alpha = 0.00001$')
 plt.plot(lr_coef, alpha=0.7, linestyle='none', marker='o', markersize=5, color='green', label='Linear Regression', zorder=2)

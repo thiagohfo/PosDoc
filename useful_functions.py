@@ -5,17 +5,17 @@ import chardet  # Detecta encode do arquivo
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from collections import Counter
 import matplotlib.cm as cm
-import matplotlib.pyplot as plt
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
+from collections import Counter
+from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
 from unidecode import unidecode  # Útil para retirar cacteres especiais (como acentos) das palavras
 
 
@@ -33,10 +33,11 @@ else:
 
 
 # Check o encode do arquivo/base de dados
-def read_data(file_t='dados-ce-1.csv'):
+def read_data(file_t='Bases/dados-ce-1.csv'):
     pd.set_option('display.max_columns', None) # Mostrar todas as colunas
     pd.set_option('display.max_rows', 10) # Mostrar apenas 10 linhas
-    file = 'Bases/{}'.format(file_t)
+    #file = 'Bases/{}'.format(file_t)
+    file = file_t
 
     with open(file, 'rb') as check_raw:
         raw_data = check_raw.readline()
@@ -96,6 +97,13 @@ def standarding_features(raw_data_t, *features, **kwargs):
                 raw_data_t[i] = 0 # Remover aqui se for para não preencher com 0 em valores faltosos
     raw_data_t[coluna] = ','.join(features_list)
     return raw_data_t
+
+
+def delete_rows_values_by_regex(data_t, column_t, regex_exp_t, not_include=False):
+    if not_include:
+        data_t.drop(data_t[~data_t[column_t].str.contains(regex_exp_t)].index, inplace=True)
+    else:
+        data_t.drop(data_t[data_t[column_t].str.contains(regex_exp_t)].index, inplace=True)
 
 
 # Útil para salvar informações de agrupamento de uma coluna em arquivo txt

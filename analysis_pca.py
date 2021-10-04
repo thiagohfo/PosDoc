@@ -20,14 +20,17 @@ def pca_apply(n_components_t, columns_t):
     pca_data = pd.DataFrame(data=X_transformed, columns=['PCA{}'.format(i) for i in range(1, n_components_t + 1)])
     pca_data = pd.concat([pca_data, pd.DataFrame(data=Y, columns=['Target'])], axis=1)
 
+
     # Printando dados de cada componente
     print('Value by component: {}'.format(['PCA{}={}'.format(i+1, np.round(value,2)) for i, value in enumerate(pca.explained_variance_ratio_)]))
     print('Cumulative value: {}'.format(['{}={}'.format(i+1, np.round(value,2)) for i, value in enumerate(pca.explained_variance_ratio_.cumsum())]))
+
 
     # Plots
     for i in pca_data.columns[1:-1]:
         scatter_plot(pca_data, 'PCA1', i)
     scree_plot(pca)
+
 
     # Deletando as variáveis, só por motivo de clareza
     del pca
@@ -47,7 +50,7 @@ delete_rows_by_value(data, 'resultadoTeste', 0, False)
 
 # Usando o PCA
 max = len(symptoms)
-min = 2
+min = 1
 for i in range(max, min, -1):
     pca_apply(i, (symptoms))
 

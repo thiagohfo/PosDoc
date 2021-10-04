@@ -7,7 +7,7 @@ import scipy
 # Leitura dos dados
 file = 'Bases/dados-ce-1.csv'
 data = read_data()
-print(len(data))
+print("Tamanha da base: {}".format(len(data)))
 
 
 # Mostra as porcentagens de cada características
@@ -35,6 +35,30 @@ def main_feature(features_t):
         bar_plot(features_t, values)
 
 
+# Gerar sumarização dos dados
+def summarizing(data_t, features_t):
+    data_grouped = data_t.groupby(features_t)
+
+    for key, item in data_grouped:
+        data_grouped.get_group(key)
+
+        list_names = []
+
+        for i, feature in enumerate(features_t):
+            if key[i] == 0:
+                list_names.append(feature)
+            else:
+                list_names.append(feature.upper())
+
+        # print(list_names)
+        for name in list_names:
+            if name.isupper():
+                print("\033[1m" + name + "\033[0m", end=' ')
+
+        print()
+        print(len(data_grouped.get_group(key)))
+
+
 # Columns
 conditions = ['cardiacas', 'diabetes', 'respiratorias', 'renais', 'imunologica', 'obesidade', 'imunossupressao']
 #conditions = ['cardiacas', 'diabetes', 'renais', 'imunossupressao']
@@ -44,23 +68,35 @@ all = symptoms + conditions + ['resultadoTeste']
 
 
 # Pega somente rows com testes positivos ou negativos
-delete_rows_by_value(data, 'resultadoTeste', 0, False)
+delete_rows_by_value(data, 'resultadoTeste', 1)
 
 
-percents_features(symptoms + conditions)
-
-#main_feature(symptoms)
+# Montando o perfil de acordo com alguns tipos de evolução
+#delete_rows_by_value(data, 'evolucaoCaso', 'Cura', False) # Deleta todos os curados
+#delete_rows_by_value(data, 'evolucaoCaso', 'Em tratamento domiciliar', False) # Deleta todos em tratamento
+#delete_rows_by_value(data, 'evolucaoCaso', 'Cura') # Deixa somente os curados
 
 
 # Linha responsável por modificar apenas 1 entrada de resultadoTeste, pois se ficarem todos com o mesmo valor, não rolará correlação
-data.at[2, 'resultadoTeste'] = 0
+#data.at[1, 'resultadoTeste'] = 1 # Para casos de curados
+data.at[16, 'resultadoTeste'] = 0 # Para casos de óbitos
+#print(data['evolucaoCaso'].value_counts())
+#print("Tamanha da base: {}".format(len(data)))
 
-#correlation_heatmap(data[all])
-#correlation_heatmap(data[all], pearson_t=False)
+
+#percents_features(symptoms + conditions)
+#main_feature(symptoms)
+#summarizing(data, symptoms)
+
+
+# Correlação com base em Pearson e Spearman
+correlation_heatmap(data[symptoms + ['resultadoTeste']])
+correlation_heatmap(data[symptoms + ['resultadoTeste']], pearson_t=False)
+
 
 # Média de sintomas por pessoa (Considerando só casos positivos)
-print(data[symptoms].mean(axis=1).mean(axis=0))
-print(data[symptoms].mean(axis=1).std())
-
+print("Média de sintomas: {}".format(data[symptoms].mean(axis=1).mean(axis=0)))
+print("Desvio padrão: {}".format(data[symptoms].mean(axis=1).std()))
+print("Tamanha da base: {}".format(len(data)))
 
 exit(0)
