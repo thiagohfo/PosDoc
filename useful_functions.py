@@ -3,8 +3,10 @@ import re
 import sys
 import chardet  # Detecta encode do arquivo
 import numpy as np
+from math import *
 import pandas as pd
 import seaborn as sns
+from scipy.stats import *
 import matplotlib.cm as cm
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
@@ -15,6 +17,7 @@ from sklearn.linear_model import Lasso
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from unidecode import unidecode  # Útil para retirar cacteres especiais (como acentos) das palavras
 
@@ -46,6 +49,7 @@ def read_data(file_t='Bases/dados-ce-1.csv'):
             encode = 'utf-8'
 
     data = pd.read_csv(file, encoding=encode, sep=';')
+    print("Tamanha da base: {}".format(len(data)))
     del encode
     return data
 
@@ -117,3 +121,21 @@ def save_value_counts_file(data_t, column_name_t):
 def add_column(data_t, columns_t):
     for i, column in enumerate(columns_t):
         data_t.insert((i + 3), column, '', True)
+
+
+# Útil para arredondar números, ainda mais em escalas inteiras
+def round_up(number_t, decimals_t=0):
+    multiplier = 10 ** decimals_t
+    return ceil(number_t * multiplier) / multiplier
+
+
+# Informações dos dados
+def mean_information(data_t):
+    print("Média de sintomas: {}".format(data_t.mean(axis=1).mean(axis=0)))
+    print("Desvio padrão: {}".format(data_t.mean(axis=1).std()))
+    print("Tamanha da base: {}".format(len(data_t)))
+
+
+# Salvando arquivo
+def saving_data(data_t, file_t):
+    data_t.to_csv(file_t, sep=';', encoding='utf-8', index=False)

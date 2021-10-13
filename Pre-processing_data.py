@@ -12,10 +12,9 @@ from unidecode import unidecode  #Útil para retirar cacteres especiais (como ac
 # Leitura dos dados
 file = 'Bases/dados-ce-1.csv'
 data = read_data(file)
-print("Tamanha da base: {}".format(len(data)))
 
 
-# Colunas para analisar os dados e deletar as amostras
+# Colunas para analisar os dados e deletar as amostras (rows)
 columns_analyze = ['evolucaoCaso', 'sintomas', 'profissionalSaude', 'tipoTeste', 'resultadoTeste']
 
 
@@ -37,22 +36,22 @@ delete_rows_NA_values(data, columns_analyze)
 delete_rows_by_value(data, 'tipoTeste', 'RT-PCR')
 change_column_values(data, 'resultadoTeste', r'^[In].*', 'Indeterminado', True)
 delete_rows_by_value(data, 'resultadoTeste', 'Indeterminado', False)
+delete_rows_by_value(data, 'evolucaoCaso', 'Cancelado', False)
+delete_rows_by_value(data, 'evolucaoCaso', 'Ignorado', False)
 del columns_analyze
 
 
 # Consertando um probleminha de datas com valores ausentes para poder aplicar funções
 data.loc[data.dataNotificacao.isnull(), 'dataNotificacao'] = data['dataInicioSintomas']
 data.loc[data.dataInicioSintomas.isnull(), 'dataInicioSintomas'] = data['dataNotificacao']
-
-
-# Correção, muda valores de null para empty strings.
-data['condicoes'] = data['condicoes'].fillna('')
-data['classificacaoFinal'] = data['classificacaoFinal'].fillna('')
-
-
 # Chamando função para consertar as datas e aplicar nas colunas correspondentes
 data['dataNotificacao'] = data['dataNotificacao'].apply(formating_dates)
 data['dataInicioSintomas'] = data['dataInicioSintomas'].apply(formating_dates)
+
+
+# Correção, muda valores de null para empty strings.
+for col in data.columns:
+    data[col] = data[col].fillna('')
 
 
 # Realizar operação entre as datas, subtraindo dataInicioSintomas de dataNotificacao e cria a coluna diasSintomas
@@ -80,33 +79,33 @@ data.drop(data[(data['tosse'] == 0) & (data['febre'] == 0) & (data['garganta'] =
 
 
 # Mais algumas colunas e linhas para serem limpas, só podem serem feitas depois de algumas limpezas prévias
-delete_rows_by_value(data, 'evolucaoCaso', 'Cancelado', False)
-delete_rows_by_value(data, 'evolucaoCaso', 'Ignorado', False)
 delete_rows_values_by_regex(data, 'classificacaoFinal', r'Confirmado', True)
 features_columns = ['sintomas', 'assintomatico', 'condicoes', 'gustativos', 'olfativos', 'outros']
 delete_columns(data, features_columns)
 
 
 # Trocar alguns valores
-change_column_values(data, 'profissionalSaude', 'Não', 0, False)
-change_column_values(data, 'profissionalSaude', 'Sim', 1, False)
-change_column_values(data, 'resultadoTeste', 'Negativo', 0, False)
-change_column_values(data, 'resultadoTeste', 'Positivo', 1, False)
-change_column_values(data, 'sexo', 'Feminino', 0, False)
-change_column_values(data, 'sexo', 'Masculino', 1, False)
+cols_change = ['profissionalSaude', 'resultadoTeste', 'sexo', 'evolucaoCaso'] # Índice 0 no zip
+old_values = [['Não', 'Sim'], ['Negativo', 'Positivo'], ['Feminino', 'Masculino'], [r'.*tratamento.*', r'Internado.*']] # Índice 1 no zip
+new_values = [[0, 1], [0, 1], [0, 1], ['Cura', 'Internado']] # Índice 2 no zip
+use_regex = [False, False, False, True] # Índice 3 no zip
+for values in zip(cols_change, old_values, new_values, use_regex):
+    if type(values[1]) != str:
+        change_column_values(data, values[0], values[1][0], values[2][0], values[3])
+        change_column_values(data, values[0], values[1][1], values[2][1], values[3])
+    else:
+        change_column_values(data, values[0], values[1], values[2], values[3])
+del cols_change, old_values, new_values, use_regex
 
 
 # Converte colunas selecionadas para int
-columns = data.columns.to_list()
-columns.remove('evolucaoCaso')
-columns.remove('tipoTeste')
-columns.remove('classificacaoFinal')
+col_exclude = ['evolucaoCaso', 'tipoTeste', 'classificacaoFinal']
+columns = [col for col in data.columns.to_list() if col not in col_exclude]
 data[columns] = data[columns].astype(int)
-print(data.dtypes)
 
 
 # Salvando o arquivo
-data.to_csv(file, sep=';', encoding='utf-8', index=False)
+saving_data(data, file)
 print("Tamanha da base: {}".format(len(data)))
 
 
