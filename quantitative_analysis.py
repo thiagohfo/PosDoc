@@ -1,20 +1,13 @@
 #!/opt/anaconda3/envs/PosDoc/bin/python
 from plot_functions import *
 from useful_functions import *
-from analysis_pca import pca_apply
-from analysis_regressions import lr_prediction, rr_prediction, lasso_prediction, logistic_prediction
-
-
-# Leitura dos dados
-file = 'Bases/dados-ce-1.csv'
-data = read_data(file)
 
 
 # Mostra as porcentagens de cada características
-def percents_features(features_t):
-    for i in features_t:
+def percents_features(data_t):
+    for i in data_t.columns.to_list():
         print(i)
-        value = data[i].value_counts(normalize=True).to_string()
+        value = data_t[i].value_counts(normalize=True).to_string()
         value = [x.split() for x in value.split('\n')]
 
         for j in range(len(value)):
@@ -22,17 +15,17 @@ def percents_features(features_t):
 
 
 # Gerar gráficos com base em cada uma das características (sintomas e condições)
-def main_feature(features_t):
-    for i in features_t:
-        print(data[i].value_counts())
-        temp_data = data.copy()
+def main_feature(data_t):
+    for i in data_t.columns.to_list():
+        print(data_t[i].value_counts())
+        temp_data = data_t.copy()
         delete_rows_by_value(temp_data, i, 1)
 
         values = []
-        for j in features_t:
+        for j in data_t.columns.to_list():
             values.append(temp_data[j].sum(axis=0))
 
-        bar_plot(features_t, values)
+        bar_plot(data_t.columns.to_list(), values)
 
 
 # Gerar sumarização dos dados
@@ -71,45 +64,16 @@ def summarizing(data_t, qtd_groups_t, print_t=True, radar_t=True):
         radar_chart(values, groups)
 
 
-# Columns
-conditions = ['cardiacas', 'diabetes', 'respiratorias', 'renais', 'imunologica', 'obesidade', 'imunossupressao']
-symptoms = ['tosse', 'febre', 'garganta', 'dispneia', 'cabeca', 'coriza']
-others = ['tipoTeste', 'evolucaoCaso', 'profissionalSaude', 'diasSintomas', 'sexo', 'idade']
-all = symptoms + conditions + ['resultadoTeste']
+# Correlação
+def correlation(data_t, type_t):
+    if len(data_t.loc[data_t['resultadoTeste'] == 1]) > 0:
+        data_t.at[data_t['resultadoTeste'].ne(1).idxmin(), 'resultadoTeste'] = 0
+    else:
+        data_t.at[data_t['resultadoTeste'].ne(0).idxmin(), 'resultadoTeste'] = 1
 
-
-# Pega somente rows com testes positivos ou negativos
-#delete_rows_by_value(data, 'resultadoTeste', 1)
-
-
-# Montando o perfil de acordo com alguns tipos de evolução
-#delete_rows_by_value(data, 'evolucaoCaso', 'Cura') # Deixa somente os curados
-#delete_rows_by_value(data, 'evolucaoCaso', 'Internado') # Deixa somente os internados
-#delete_rows_by_value(data, 'evolucaoCaso', 'Óbito') # Deixa somente os óbitos
-
-
-# Funções para apresentação dos dados
-#percents_features(symptoms + conditions)
-#main_feature(symptoms)
-#summarizing(data[symptoms], 10)
-
-
-# Análises
-#pca_apply(data[symptoms], data['resultadoTeste'], 6)
-#tsne_apply(data[symptoms], data['resultadoTeste'], 3)
-#lr_prediction(data[symptoms], data['resultadoTeste'])
-#lasso_prediction(data[symptoms], data['resultadoTeste'])
-#rr_prediction(data[symptoms], data['resultadoTeste'])
-logistic_prediction(data[symptoms], data['resultadoTeste'])
-
-
-# Linha responsável por modificar apenas 1 entrada de resultadoTeste, pois se ficarem todos com o mesmo valor, não rolará correlação
-#data.at[data['resultadoTeste'].ne(1).idxmin(), 'resultadoTeste'] = 0
-#data.at[data['resultadoTeste'].ne(0).idxmin(), 'resultadoTeste'] = 1
-# Correlação com base em Pearson, Spearman e Pearson Chi-Square
-#correlation_heatmap(data[symptoms + ['resultadoTeste']]) # Pearson
-#correlation_heatmap(data[symptoms + ['resultadoTeste']], pearson_t=False) # Spearman
-#correlation_heatmap_chi_square(data[symptoms], symptoms) # Chi-Square Test
-
-
-exit(0)
+    if type_t == 'Pearson':
+        correlation_heatmap(data_t)
+    elif type_t == 'Spearman':
+        correlation_heatmap(data_t, pearson_t=False)
+    elif type_t == 'ChiSquare':
+        correlation_heatmap_chi_square(data_t)

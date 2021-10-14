@@ -8,6 +8,13 @@ def lr_prediction(data_t_x, data_t_y, test_size_t=0.3, random_state_t=0):
     x_train, x_test, y_train, y_test = train_test_split(data_t_x, data_t_y, test_size=test_size_t, random_state=random_state_t)
     lr = LinearRegression()
     lr.fit(x_train, y_train)
+
+
+    # Salvando o modelo
+    saving_model(lr, 'linear_model')
+
+
+    # Dados da regressão
     y_pred = lr.predict(x_test)
     train_score = lr.score(x_train, y_train)
     test_score = lr.score(x_test, y_test)
@@ -15,7 +22,6 @@ def lr_prediction(data_t_x, data_t_y, test_size_t=0.3, random_state_t=0):
 
     # Print dados da regressão linear
     print("Coeficiente LR: {}".format(lr.coef_))
-    print("Predição: {}".format(y_pred))
     print("Train Score: {}".format(train_score))
     print("Test Score: {}".format(test_score))
 
@@ -115,12 +121,18 @@ def logistic_prediction(data_t_x, data_t_y, test_size_t=0.3, random_state_t=0):
     x_train, x_test, y_train, y_test = train_test_split(data_t_x, data_t_y, test_size=test_size_t, random_state=random_state_t)
     logistic = LogisticRegression(solver='liblinear', random_state=0)
     logistic.fit(x_train, y_train)
+
+
+    # Salvando o modelo
+    saving_model(logistic, 'logistic_model')
+
+
+    # Dados da regressão
     y_pred = logistic.predict(x_test)
     train_score = logistic.score(x_train, y_train)
     test_score = logistic.score(x_test, y_test)
 
 
     # Print dados da regressão linear
-    print("Predição: {}".format(y_pred))
     print("Train Score: {}".format(train_score))
     print("Test Score: {}".format(test_score))

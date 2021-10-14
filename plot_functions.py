@@ -1,4 +1,3 @@
-import plotly.express as PX
 from useful_functions import *
 
 
@@ -25,11 +24,11 @@ def correlation_heatmap(data_t, pearson_t=True):
 
 
 # Heatmap de correlação para Chi-Square Test com coeficiente de Pearson
-def correlation_heatmap_chi_square(data_t, features_t):
-    data_cross = pd.DataFrame(index=features_t, columns=features_t)
+def correlation_heatmap_chi_square(data_t):
+    data_cross = pd.DataFrame(index=data_t.columns, columns=data_t.columns)
 
-    for i in features_t:
-        for j in features_t:
+    for i in data_t.columns:
+        for j in data_t.columns:
             if i == j:
                 data_cross.at[i, j] = 1
             else:

@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import pickle
 import chardet  # Detecta encode do arquivo
 import numpy as np
 from math import *
@@ -8,7 +9,9 @@ import pandas as pd
 import seaborn as sns
 from scipy.stats import *
 import matplotlib.cm as cm
+import plotly.express as PX
 import statsmodels.api as sm
+from unidecode import unidecode  # Útil para retirar cacteres especiais (como acentos) das palavras
 import matplotlib.pyplot as plt
 from collections import Counter
 from sklearn.manifold import TSNE
@@ -19,7 +22,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from unidecode import unidecode  # Útil para retirar cacteres especiais (como acentos) das palavras
 
 
 """ # Adicionar esse trecho no arquivo .py e descomentar se quiser executar diretamente do terminal
@@ -36,20 +38,23 @@ else:
 
 
 # Check o encode do arquivo/base de dados
-def read_data(file_t='Bases/dados-ce-1.csv'):
+def read_data(file_t):
     pd.set_option('display.max_columns', None) # Mostrar todas as colunas
     pd.set_option('display.max_rows', 10) # Mostrar apenas 10 linhas
-    #file = 'Bases/{}'.format(file_t)
-    file = file_t
 
-    with open(file, 'rb') as check_raw:
+
+    with open(file_t, 'rb') as check_raw:
         raw_data = check_raw.readline()
         encode = chardet.detect(raw_data).get('encoding')
         if encode == 'ascii':
             encode = 'utf-8'
 
-    data = pd.read_csv(file, encoding=encode, sep=';')
-    print("Tamanha da base: {}".format(len(data)))
+
+    data = pd.read_csv(file_t, encoding=encode, sep=';')
+    print('Base: {}'.format(file_t[6:-4]))
+    print("Tamanho da base: {}".format(len(data)))
+
+
     del encode
     return data
 
@@ -133,9 +138,31 @@ def round_up(number_t, decimals_t=0):
 def mean_information(data_t):
     print("Média de sintomas: {}".format(data_t.mean(axis=1).mean(axis=0)))
     print("Desvio padrão: {}".format(data_t.mean(axis=1).std()))
-    print("Tamanha da base: {}".format(len(data_t)))
+    print("Tamanho da base: {}".format(len(data_t)))
 
 
 # Salvando arquivo
 def saving_data(data_t, file_t):
     data_t.to_csv(file_t, sep=';', encoding='utf-8', index=False)
+    print("Tamanho da base: {}".format(len(data_t)))
+
+
+# Salvando o modelo da regressão
+def saving_model(model_t, name_model_t):
+    model_file = 'Modelos/{}.pkl'.format(name_model_t)
+
+
+    with open(model_file, 'wb') as file:
+        pickle.dump(model_t, file)
+
+
+# Carregando o modelo da regressão
+def loading_model(name_model_t):
+    model_file = 'Modelos/{}.pkl'.format(name_model_t)
+
+
+    with open(model_file, 'rb') as file:
+        model_loaded = pickle.load(file)
+
+
+    return model_loaded
