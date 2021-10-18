@@ -13,7 +13,6 @@ def percents_features(data_t):
         for j in range(len(value)):
             print("{} - {:.2f}%".format(value[j][0], float(value[j][1]) * 100))
 
-
 # Gerar gráficos com base em cada uma das características (sintomas e condições)
 def main_feature(data_t):
     for i in data_t.columns.to_list():
@@ -27,9 +26,8 @@ def main_feature(data_t):
 
         bar_plot(data_t.columns.to_list(), values)
 
-
 # Gerar sumarização dos dados
-def summarizing(data_t, qtd_groups_t, print_t=True, radar_t=True):
+def summarizing(data_t, qtd_groups_t, name_fig_t, print_t=True, radar_t=True):
     features = data_t.columns.to_list()
     data_grouped = data_t.groupby(features)
     all_lists = []
@@ -61,8 +59,7 @@ def summarizing(data_t, qtd_groups_t, print_t=True, radar_t=True):
             all_lists[i].pop()
             groups.append("-".join(x[:2] for x in list))
 
-        radar_chart(values, groups)
-
+        radar_chart(values, groups, name_fig_t)
 
 # Correlação
 def correlation(data_t, type_t):
@@ -77,3 +74,25 @@ def correlation(data_t, type_t):
         correlation_heatmap(data_t, pearson_t=False)
     elif type_t == 'ChiSquare':
         correlation_heatmap_chi_square(data_t)
+
+# Informações da base por grupos (Curados, Internados e Óbitos) e sendo completa (com positivos e negativos) e depois só com positivos
+def base_information(data_t, folder_t):
+    for result in [0, 1]:
+        data_temp = data_t.copy()
+        name_temp = folder_t
+
+        if result == 1:  # Base somente com positivos
+            name_temp += 'Positivos'
+            delete_rows_by_value(data_temp, 'resultadoTeste', result)
+        else:
+            name_temp += 'Completa'
+
+        for group in ['Cura', 'Internado', 'Óbito']:
+            name_temp_2 = '{}_{}'.format(name_temp, group)
+            data_temp_2 = data_temp.copy()
+            delete_rows_by_value(data_temp_2, 'evolucaoCaso', group)
+
+            if len(data_temp_2) > 10:
+                summarizing(data_temp_2.iloc[:, 2:8], 10, name_temp_2, False, True)
+            else:
+                continue

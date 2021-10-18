@@ -11,7 +11,6 @@ def bar_plot(indexes_t, values_t):
         plt.text(index - 0.20, value + 0.02, str(value))
     plt.show()
 
-
 # Heatmap de correlação. As entradas são a base e o método padrão é o de Pearson
 def correlation_heatmap(data_t, pearson_t=True):
     if pearson_t:
@@ -21,7 +20,6 @@ def correlation_heatmap(data_t, pearson_t=True):
 
     sns.heatmap(data_t.corr(method=correlation_method), xticklabels=data_t.columns, yticklabels=data_t.columns, annot=True, fmt='.1f', linewidths=.6, cmap='YlGnBu')
     plt.show()
-
 
 # Heatmap de correlação para Chi-Square Test com coeficiente de Pearson
 def correlation_heatmap_chi_square(data_t):
@@ -39,7 +37,6 @@ def correlation_heatmap_chi_square(data_t):
     sns.heatmap(data_cross, xticklabels=data_cross.columns, yticklabels=data_cross.columns, annot=True, fmt='.1f', linewidths=.6, cmap='YlGnBu')
     plt.show()
 
-
 # Scree Plot (gráfico de "joelho") - Importância de cada componente
 def scree_plot(pca_t):
     print(pca_t)
@@ -48,7 +45,6 @@ def scree_plot(pca_t):
     plt.xlabel('Componente Principal')
     plt.ylabel('Autovalor')
     plt.show()
-
 
 # Scatter plot (gráfico de dispersão)
 def scatter_plot(data_t, X, Y):
@@ -60,22 +56,24 @@ def scatter_plot(data_t, X, Y):
     #plt.colorbar()
     plt.show()
 
-
 # Plot de multiplos gráficos via Scatter
 def scatter_plot_PX(data_t, features_t):
     fig = PX.scatter_matrix(data_t, features_t)
     fig.update_traces(diagonal_visible=False)
     fig.show()
 
-
 # Radar/Polar/Spider plot
-def radar_chart(values_t, groups_t):
+def radar_chart(values_t, groups_t, name_fig_t):
     largest_number = int(round_up(max(values_t), -(len(str(max(values_t))) - 1)))
 
     angles = [n / float(len(groups_t)) * 2 * pi for n in range(len(groups_t))]
     angles += angles[:1]
 
     multiplier_number = 10**(len(str(largest_number)) - 1)
+
+    if multiplier_number == largest_number:
+        multiplier_number = multiplier_number // 10
+
     number = 0
     labels = []
 
@@ -92,4 +90,24 @@ def radar_chart(values_t, groups_t):
     values_t += values_t[:1]
     plt.plot(angles, values_t, linewidth=1, linestyle='solid')
     plt.fill(angles, values_t, 'b', alpha=0.1)
-    plt.show()
+    plt.savefig(name_fig_t)
+    #plt.show()
+    plt.close()
+
+# Curva ROC
+def roc_curve_plot(y_t, y_probs_t, name_fig_t):
+    fpr, tpr, thresholds = roc_curve(y_t, y_probs_t)
+    roc_auc = auc(fpr, tpr)
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(fpr, tpr, color='darkorange', label='Curva ROC (area = {:.2f})'.format(roc_auc))
+    plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('Taxa de Falsos Positivos')
+    plt.ylabel('Taxa de Verdadeiros Positivos')
+    plt.title('Curva ROC')
+    plt.legend(loc="lower right")
+    plt.savefig('{}curva_ROC'.format(name_fig_t))
+    #plt.show()
+    plt.close()

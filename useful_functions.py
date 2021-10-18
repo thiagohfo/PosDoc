@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import pickle
+import shutil
 import chardet  # Detecta encode do arquivo
 import numpy as np
 from math import *
@@ -11,10 +12,12 @@ from scipy.stats import *
 import matplotlib.cm as cm
 import plotly.express as PX
 import statsmodels.api as sm
+from sklearn.metrics import *
 from unidecode import unidecode  # Útil para retirar cacteres especiais (como acentos) das palavras
 import matplotlib.pyplot as plt
 from collections import Counter
 from sklearn.manifold import TSNE
+from sklearn.utils import resample
 from sklearn.decomposition import PCA
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import Ridge
@@ -42,32 +45,27 @@ def read_data(file_t):
     pd.set_option('display.max_columns', None) # Mostrar todas as colunas
     pd.set_option('display.max_rows', 10) # Mostrar apenas 10 linhas
 
-
     with open(file_t, 'rb') as check_raw:
         raw_data = check_raw.readline()
         encode = chardet.detect(raw_data).get('encoding')
         if encode == 'ascii':
             encode = 'utf-8'
 
-
-    data = pd.read_csv(file_t, encoding=encode, sep=';')
+    data = pd.read_csv(file_t, encoding=encode, sep=';', on_bad_lines='skip')
+    print('---------------------------------------')
     print('Base: {}'.format(file_t[6:-4]))
     print("Tamanho da base: {}".format(len(data)))
 
-
     del encode
     return data
-
 
 # Remover amostras com dados importantes como faltosos, as entradas são colunas para analizar
 def delete_rows_NA_values(data_t, columns_analyze_t):
     data_t.dropna(how='any', subset=columns_analyze_t, inplace=True)
 
-
 # Deletando algumas colunas irrelevantes
 def delete_columns(data_t, columns_list_t):
     data_t.drop(columns_list_t, axis=1, inplace=True)
-
 
 # Deleta amostras (rows) com valores diferentes (ou iguais) ao do parâmetro 'value', se baseando na columa 'column'
 def delete_rows_by_value(data_t, column_t, value_t, diff_t=True):
@@ -76,18 +74,15 @@ def delete_rows_by_value(data_t, column_t, value_t, diff_t=True):
     else:
         data_t.drop(data_t[data_t[column_t] == value_t].index, inplace=True)
 
-
 # Alterar valores de colunas, essencialmente ajudar a tirar caracteres especiais ou palavras mal formadas
 def change_column_values(data_t, column_t, regex_exp_t, new_value_t, use_regex_t=True):
     #print(data[column].value_counts())
     data_t[column_t].replace(to_replace=regex_exp_t, value=new_value_t, regex=use_regex_t, inplace=True)
     #print(data[column].value_counts())
 
-
 # Formatando datas, colocando no padrão yyyy-mm-dd
 def formating_dates(raw_date_t):
     return re.sub(r'(\d{4})-(\d{2})-(\d{2})(.*)', r'\1-\2-\3', raw_date_t)
-
 
 # Padronizar o nome dos sintomas, tirando acentos e espaços.
 def standarding_features(raw_data_t, *features, **kwargs):
@@ -107,13 +102,11 @@ def standarding_features(raw_data_t, *features, **kwargs):
     raw_data_t[coluna] = ','.join(features_list)
     return raw_data_t
 
-
 def delete_rows_values_by_regex(data_t, column_t, regex_exp_t, not_include=False):
     if not_include:
         data_t.drop(data_t[~data_t[column_t].str.contains(regex_exp_t)].index, inplace=True)
     else:
         data_t.drop(data_t[data_t[column_t].str.contains(regex_exp_t)].index, inplace=True)
-
 
 # Útil para salvar informações de agrupamento de uma coluna em arquivo txt
 def save_value_counts_file(data_t, column_name_t):
@@ -121,18 +114,15 @@ def save_value_counts_file(data_t, column_name_t):
     with open(file_name, 'w') as file_value:
         file_value.write(data_t[column_name_t].value_counts().to_string())
 
-
 # Útil para adicionar colunas, função usada para adicionar as colunas de cada sintoma
 def add_column(data_t, columns_t):
     for i, column in enumerate(columns_t):
         data_t.insert((i + 3), column, '', True)
 
-
 # Útil para arredondar números, ainda mais em escalas inteiras
 def round_up(number_t, decimals_t=0):
     multiplier = 10 ** decimals_t
     return ceil(number_t * multiplier) / multiplier
-
 
 # Informações dos dados
 def mean_information(data_t):
@@ -140,29 +130,23 @@ def mean_information(data_t):
     print("Desvio padrão: {}".format(data_t.mean(axis=1).std()))
     print("Tamanho da base: {}".format(len(data_t)))
 
-
 # Salvando arquivo
 def saving_data(data_t, file_t):
     data_t.to_csv(file_t, sep=';', encoding='utf-8', index=False)
     print("Tamanho da base: {}".format(len(data_t)))
 
-
 # Salvando o modelo da regressão
 def saving_model(model_t, name_model_t):
     model_file = 'Modelos/{}.pkl'.format(name_model_t)
 
-
     with open(model_file, 'wb') as file:
         pickle.dump(model_t, file)
-
 
 # Carregando o modelo da regressão
 def loading_model(name_model_t):
     model_file = 'Modelos/{}.pkl'.format(name_model_t)
 
-
     with open(model_file, 'rb') as file:
         model_loaded = pickle.load(file)
-
 
     return model_loaded

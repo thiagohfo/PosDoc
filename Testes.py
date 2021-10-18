@@ -1,21 +1,6 @@
 #!/opt/anaconda3/envs/PosDoc/bin/python
-from plot_functions import *
 from useful_functions import *
 
-
-# Leitura dos dados
-file = 'Bases/dados-ce-1.csv'
-data = read_data(file)
-print(len(data))
-
-import matplotlib.pyplot as plt
-import pandas as pd
-from math import pi
-
-
-
-#print(int(round_up(len(data), -(len(str(len(data))) - 1))))
-
-
-
-exit(0)
+data = read_data('Bases/dados-rj-2.csv')
+pd.set_option('display.max_columns', None) # Mostrar todas as colunas
+pd.set_option('display.max_rows', None) # Mostrar apenas 10 linhas
