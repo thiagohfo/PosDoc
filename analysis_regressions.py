@@ -24,8 +24,8 @@ def lr_prediction(data_t_x, data_t_y, test_size_t=0.3, random_state_t=0):
 
     # Predição e aplicação da Regressão pelo StatsModels
     # X = sm.add_constant(X)
-    ols = sm.OLS(data_t_y, data_t_x).fit()
-    print(ols.summary())
+    #ols = sm.OLS(data_t_y, data_t_x).fit()
+    #print(ols.summary())
     # print(ols.predict(X))
 
     return lr.coef_
@@ -50,14 +50,10 @@ def rr_prediction(data_t_x, data_t_y, alpha_t=[0.01, 1, 100], test_size_t=0.3, r
 
     lr_coef = lr_prediction(data_t_x, data_t_y)
 
-    plt.plot(rr_coef[0], alpha=0.7, linestyle='none', marker='*', markersize=5, color='red',
-             label=r'Ridge; $\alpha = 0.01$', zorder=7)
-    plt.plot(rr_coef[1], alpha=0.5, linestyle='none', marker='d', markersize=6, color='blue',
-             label=r'Ridge; $\alpha = 1$')
-    plt.plot(rr_coef[2], alpha=0.8, linestyle='none', marker='v', markersize=6, color='black',
-             label=r'Ridge; $\alpha = 100$')
-    plt.plot(lr_coef, alpha=0.7, linestyle='none', marker='o', markersize=5, color='green', label='Linear Regression',
-             zorder=2)
+    plt.plot(rr_coef[0], alpha=0.7, linestyle='none', marker='*', markersize=5, color='red', label=r'Ridge; $\alpha = 0.01$', zorder=7)
+    plt.plot(rr_coef[1], alpha=0.5, linestyle='none', marker='d', markersize=6, color='blue', label=r'Ridge; $\alpha = 1$')
+    plt.plot(rr_coef[2], alpha=0.8, linestyle='none', marker='v', markersize=6, color='black', label=r'Ridge; $\alpha = 100$')
+    plt.plot(lr_coef, alpha=0.7, linestyle='none', marker='o', markersize=5, color='green', label='Linear Regression', zorder=2)
     plt.xlabel('Coeficientes', fontsize=16)
     plt.ylabel('Magnitude do Coeficiente', fontsize=16)
     plt.legend(fontsize=13, loc=4)
@@ -85,14 +81,10 @@ def lasso_prediction(data_t_x, data_t_y, alpha_t=[1, 0.01, 0.00001], test_size_t
 
     lr_coef = lr_prediction(data_t_x, data_t_y)
 
-    plt.plot(lasso_coef[0], alpha=0.7, linestyle='none', marker='*', markersize=5, color='red',
-             label=r'Lasso; $\alpha = 1$', zorder=7)
-    plt.plot(lasso_coef[1], alpha=0.5, linestyle='none', marker='d', markersize=6, color='blue',
-             label=r'Lasso; $\alpha = 0.01$')
-    plt.plot(lasso_coef[2], alpha=0.8, linestyle='none', marker='v', markersize=6, color='black',
-             label=r'Lasso; $\alpha = 0.00001$')
-    plt.plot(lr_coef, alpha=0.7, linestyle='none', marker='o', markersize=5, color='green', label='Linear Regression',
-             zorder=2)
+    plt.plot(lasso_coef[0], alpha=0.7, linestyle='none', marker='*', markersize=5, color='red', label=r'Lasso; $\alpha = 1$', zorder=7)
+    plt.plot(lasso_coef[1], alpha=0.5, linestyle='none', marker='d', markersize=6, color='blue', label=r'Lasso; $\alpha = 0.01$')
+    plt.plot(lasso_coef[2], alpha=0.8, linestyle='none', marker='v', markersize=6, color='black', label=r'Lasso; $\alpha = 0.00001$')
+    plt.plot(lr_coef, alpha=0.7, linestyle='none', marker='o', markersize=5, color='green', label='Linear Regression', zorder=2)
     plt.xlabel('Coeficientes', fontsize=16)
     plt.ylabel('Magnitude do Coeficiente', fontsize=16)
     plt.legend(fontsize=13, loc=4)
@@ -100,13 +92,13 @@ def lasso_prediction(data_t_x, data_t_y, alpha_t=[1, 0.01, 0.00001], test_size_t
     plt.show()
 
 # Predição Regressão Logística
-def logistic_prediction(data_t_x, data_t_y, test_size_t=0.3, random_state_t=0):
+def logistic_prediction(data_t_x, data_t_y, kind_t, test_size_t=0.3, random_state_t=0):
     x_train, x_test, y_train, y_test = train_test_split(data_t_x, data_t_y, test_size=test_size_t, random_state=random_state_t)
     logistic = LogisticRegression(solver='liblinear', random_state=0)
     logistic.fit(x_train, y_train)
 
     # Salvando o modelo
-    saving_model(logistic, 'logistic_model_balanced')
+    saving_model(logistic, 'logistic_model_{}'.format(kind_t))
 
     # Dados da regressão
     y_pred = logistic.predict(x_test)

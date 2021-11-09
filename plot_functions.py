@@ -2,14 +2,23 @@ from useful_functions import *
 
 
 # Gráfico de barra. As entradas são os índices e os valores.
-def bar_plot(indexes_t, values_t):
+def bar_plot(indexes_t, values_t, name_fig_t, ylim=0, xlim=0):
     #plt.figure().add_axes([0, 0, 1, 1])
     plt.figure(figsize=(10, 6))
     plt.bar(indexes_t, values_t, width=0.4)
 
     for index, value in enumerate(values_t):
         plt.text(index - 0.20, value + 0.02, str(value))
-    plt.show()
+
+    if ylim != 0:
+        plt.ylim(0, ylim)
+
+    if xlim != 0:
+        plt.xlim(0, xlim)
+
+    plt.savefig(name_fig_t)
+    #plt.show()
+    plt.close()
 
 # Heatmap de correlação. As entradas são a base e o método padrão é o de Pearson
 def correlation_heatmap(data_t, pearson_t=True):

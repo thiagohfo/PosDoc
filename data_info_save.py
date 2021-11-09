@@ -11,10 +11,10 @@ def basic_informations(data_t, file_t, cleaned_dataset=False):
     file_to_write = open('{}.txt'.format(file_t), 'a')
 
     # Pegando a quantidade de colunas
-    if cleaned_dataset == False:
+    if cleaned_dataset:
         cols_name = ['profissionalSaude', 'tipoTeste', 'resultadoTeste', 'sexo', 'evolucaoCaso', 'classificacaoFinal']
     else:
-        cols_name = ['profissionalSaude', 'tosse', 'febre', 'garganta', 'dispneia', 'cabeca', 'coriza', 'cardiacas', 'diabetes', 'respiratorias', 'renais', 'imunologica', 'obesidade', 'imunossupressao', 'tipoTeste', 'resultadoTeste', 'sexo', 'idade', 'evolucaoCaso', 'classificacaoFinal']
+        cols_name = ['profissionalSaude', 'tosse', 'febre', 'garganta', 'dispneia', 'cabeca', 'coriza', 'olfativos', 'gustativos', 'cardiacas', 'diabetes', 'respiratorias', 'renais', 'imunologica', 'obesidade', 'imunossupressao', 'tipoTeste', 'resultadoTeste', 'sexo', 'evolucaoCaso', 'classificacaoFinal']
 
     # Escrevendo no arquivo
     file_to_write.write("Tamanho da base: {}\n".format(len(data_t)))

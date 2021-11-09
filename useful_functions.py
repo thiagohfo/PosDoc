@@ -24,6 +24,7 @@ from sklearn.linear_model import Ridge
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 
 
@@ -124,12 +125,6 @@ def round_up(number_t, decimals_t=0):
     multiplier = 10 ** decimals_t
     return ceil(number_t * multiplier) / multiplier
 
-# Informações dos dados
-def mean_information(data_t):
-    print("Média de sintomas: {}".format(data_t.mean(axis=1).mean(axis=0)))
-    print("Desvio padrão: {}".format(data_t.mean(axis=1).std()))
-    print("Tamanho da base: {}".format(len(data_t)))
-
 # Salvando arquivo
 def saving_data(data_t, file_t):
     data_t.to_csv(file_t, sep=';', encoding='utf-8', index=False)
@@ -150,3 +145,23 @@ def loading_model(name_model_t):
         model_loaded = pickle.load(file)
 
     return model_loaded
+
+# Balanceamento dos dados
+def dataset_balancing(data_positives_t, data_negatives_t):
+    if len(data_positives_t) > len(data_negatives_t):
+        data_majority = data_positives_t
+        data_minority = data_negatives_t
+    else:
+        data_majority = data_negatives_t
+        data_minority = data_positives_t
+
+    data_size = round((len(data_minority) * 2) * 0.60)
+    data_reduced = resample(data_majority, replace=False, n_samples=data_size, random_state=123)
+    data_balanced = pd.concat([data_reduced, data_minority])
+
+    return data_balanced
+
+# Cria diretório para guardar dados
+def directory_create(directory_t):
+    if not os.path.exists(directory_t):
+        os.mkdir(directory_t)

@@ -56,11 +56,12 @@ def preprocessing(file_t):
     for feature, coluna in zip(features, colunas):
         data = data.apply(standarding_features, axis=1, args=feature, coluna=coluna)
 
-    # Deleta todos os rows que não possuem nenhum dos 6 principais sintomas
+    # Deleta todos os rows que não possuem nenhum dos 6 e 8 principais sintomas
+    data.drop(data[(data['tosse'] == 0) & (data['febre'] == 0) & (data['garganta'] == 0) & (data['coriza'] == 0) & (data['cabeca'] == 0) & (data['dispneia'] == 0) & (data['olfativos'] == 0) & (data['gustativos'] == 0)].index, inplace=True) # Envolve falta de paladar e olfato
     data.drop(data[(data['tosse'] == 0) & (data['febre'] == 0) & (data['garganta'] == 0) & (data['coriza'] == 0) & (data['cabeca'] == 0) & (data['dispneia'] == 0)].index, inplace=True)
 
     # Mais algumas colunas e linhas para serem limpas, só podem serem feitas depois de algumas limpezas prévias
-    features_columns = ['sintomas', 'assintomatico', 'condicoes', 'gustativos', 'olfativos', 'outros']
+    features_columns = ['sintomas', 'assintomatico', 'condicoes', 'outros'] # Modificar para add ou remover olfativos e gustativos
     delete_columns(data, features_columns)
 
     # Trocar alguns valores
