@@ -156,7 +156,7 @@ def dataset_balancing(data_positives_t, data_negatives_t):
         data_minority = data_positives_t
 
     data_size = round((len(data_minority) * 2) * 0.60)
-    data_reduced = resample(data_majority, replace=False, n_samples=data_size, random_state=123)
+    data_reduced = resample(data_majority, replace=True, n_samples=data_size, random_state=123)
     data_balanced = pd.concat([data_reduced, data_minority])
 
     return data_balanced

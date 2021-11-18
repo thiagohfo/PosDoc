@@ -103,6 +103,11 @@ def base_information(data_t, symptoms_t, folder_t):
             name_temp += 'Positivos'
             delete_rows_by_value(data_temp, 'resultadoTeste', result)
         else:
+            data_negatives = data_t.copy()
+            delete_rows_by_value(data_negatives, 'resultadoTeste', 0)
+            symptoms_count(data_negatives[symptoms_t], '{}Negativos'.format(name_temp))
+            del data_negatives
+
             name_temp += 'Completa'
 
         symptoms_count(data_temp[symptoms_t], name_temp) # Todos os sintomas de acordo com o tipo de balanceamento

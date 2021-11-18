@@ -120,3 +120,11 @@ def roc_curve_plot(y_t, y_probs_t, name_fig_t):
     plt.savefig('{}curva_ROC'.format(name_fig_t))
     #plt.show()
     plt.close()
+
+# Box Plot
+def box_plot(data_t, name_fig_t):
+    ax = plt.figure(figsize=(10, 6))
+    ax = sns.boxplot(x='Base', y='Values', data=data_t)
+    ax = sns.stripplot(x='Base', y='Values', data=data_t, color="orange", jitter=0.2, size=3.5)
+    plt.savefig(name_fig_t)
+    plt.close()
