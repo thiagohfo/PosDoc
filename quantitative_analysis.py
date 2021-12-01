@@ -33,15 +33,15 @@ def main_feature(data_t):
         bar_plot(data_t.columns.to_list(), values, i)
 
 # Symptoms by data type
-def symptoms_count(data_t, folder_t):
+def features_count(data_t, folder_t):
     values = []
 
     for i in data_t.columns.to_list():
         values.append(len(data_t.loc[data_t[i] == 1]))
 
-    name_fig = '{}_{}'.format(folder_t, 'Symptoms')
+    #name_fig = '{}_{}'.format(folder_t, 'Symptoms')
 
-    bar_plot(data_t.columns.to_list(), values, name_fig, len(data_t))
+    bar_plot(data_t.columns.to_list(), values, folder_t, len(data_t))
 
 # Gerar sumarização dos dados
 def summarizing(data_t, qtd_groups_t, name_fig_t, print_t=True, radar_t=True):
@@ -58,8 +58,9 @@ def summarizing(data_t, qtd_groups_t, name_fig_t, print_t=True, radar_t=True):
             else:
                 list_names.append(feature.upper())
 
-        all_lists.append(list_names)
-        list_names.append(len(data_grouped.get_group(key)))
+        if len(list_names) > 0:
+            all_lists.append(list_names)
+            list_names.append(len(data_grouped.get_group(key)))
 
     all_lists.sort(key=lambda x: x[-1], reverse=True)
     all_lists = all_lists[:qtd_groups_t]
@@ -94,23 +95,26 @@ def correlation(data_t, type_t):
         correlation_heatmap_chi_square(data_t)
 
 # Informações da base por grupos (Curados, Internados e Óbitos) e sendo completa (com positivos e negativos) e depois só com positivos
-def base_information(data_t, symptoms_t, folder_t):
+def base_information(data_t, features_t, folder_t):
+    groups_qty = 10
+
     for result in [0, 1]:
         data_temp = data_t.copy()
-        name_temp = folder_t
+        name_temp = '{}{}/'.format(folder_t, features_t[0])
+        directory_create(name_temp)
 
         if result == 1:  # Base somente com positivos
             name_temp += 'Positivos'
             delete_rows_by_value(data_temp, 'resultadoTeste', result)
         else:
             data_negatives = data_t.copy()
-            delete_rows_by_value(data_negatives, 'resultadoTeste', 0)
-            symptoms_count(data_negatives[symptoms_t], '{}Negativos'.format(name_temp))
+            delete_rows_by_value(data_negatives, 'resultadoTeste', result)
+            features_count(data_negatives[features_t[1]], '{}Negativos'.format(name_temp))
             del data_negatives
 
             name_temp += 'Completa'
 
-        symptoms_count(data_temp[symptoms_t], name_temp) # Todos os sintomas de acordo com o tipo de balanceamento
+        features_count(data_temp[features_t[1]], name_temp) # Todos os sintomas de acordo com o tipo de balanceamento
 
         for group in ['Cura', 'Internado', 'Óbito']:
             name_temp_2 = '{}_{}'.format(name_temp, group)
@@ -119,6 +123,6 @@ def base_information(data_t, symptoms_t, folder_t):
 
             if len(data_temp_2) > 10: # O grupo deve ter pelo menos 10 amostras/registros
                 #summarizing(data_temp_2.iloc[:, 2:10], 10, name_temp_2, False, True) # Se usar os sintomas de falta de olfato e paladar
-                summarizing(data_temp_2[symptoms_t], 10, name_temp_2, False, True)  # Se usar os sintomas de falta de olfato e paladar
+                summarizing(data_temp_2[features_t[1]], groups_qty, name_temp_2, False, True)  # Se usar os sintomas de falta de olfato e paladar
             else:
                 continue

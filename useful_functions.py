@@ -147,13 +147,25 @@ def loading_model(name_model_t):
     return model_loaded
 
 # Balanceamento dos dados
-def dataset_balancing(data_positives_t, data_negatives_t):
-    if len(data_positives_t) > len(data_negatives_t):
-        data_majority = data_positives_t
-        data_minority = data_negatives_t
+def dataset_balancing(data_t, features_t, kind_t):
+    if kind_t == 'Unbalanced':
+        return data_t
     else:
-        data_majority = data_negatives_t
-        data_minority = data_positives_t
+        data_positives = data_t[data_t['resultadoTeste'] == 1]
+        data_negatives = data_t[data_t['resultadoTeste'] == 0]
+
+    if kind_t == 'Symptoms_Based':
+        data_positives = data_positives[(data_positives['olfativos'] == 1) | (data_positives['gustativos'] == 1)]
+    elif kind_t == 'Symptoms_Amount':
+        data_positives = data_positives[data_positives[features_t].sum(axis=1) > 3]
+        data_positives = data_positives[(data_positives['olfativos'] == 1) | (data_positives['gustativos'] == 1)]
+
+    if len(data_positives) > len(data_negatives):
+        data_majority = data_positives
+        data_minority = data_negatives
+    else:
+        data_majority = data_negatives
+        data_minority = data_positives
 
     data_size = round((len(data_minority) * 2) * 0.60)
     data_reduced = resample(data_majority, replace=True, n_samples=data_size, random_state=123)

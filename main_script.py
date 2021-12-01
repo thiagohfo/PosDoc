@@ -37,18 +37,7 @@ if __name__ == '__main__':
             folder = 'Bases/{}/{}/'.format(name[:-4], kind) # Extração do nome
             file_fullname = '{}{}'.format(folder, name[:-4])
 
-            data_positives = data[data['resultadoTeste'] == 1]
-            data_negatives = data[data['resultadoTeste'] == 0]
-
-            if kind == 'Balanced':
-                data = dataset_balancing(data_positives, data_negatives)
-            elif kind == 'Symptoms_Based':
-                data_positives = data_positives[(data_positives['olfativos'] == 1) | (data_positives['gustativos'] == 1)]
-                data = dataset_balancing(data_positives, data_negatives)
-            elif kind == 'Symptoms_Amount':
-                data_positives = data_positives[data_positives[symptoms].sum(axis=1) > 3]
-                data_positives = data_positives[(data_positives['olfativos'] == 1) | (data_positives['gustativos'] == 1)]
-                data = dataset_balancing(data_positives, data_negatives)
+            data = dataset_balancing(data, symptoms, kind)
 
             if train:
                 logistic_prediction(data[symptoms], data['resultadoTeste'], kind)
@@ -59,11 +48,12 @@ if __name__ == '__main__':
 
             directory_create(folder) # Criação do diretório para cada base e seu tipo (Balanced, Unbalanced)
 
-            base_information(data, symptoms, folder)  # Informações dos grupos de sintomas
+            for feature in dict({'Symptoms': symptoms, 'Conditions': conditions}).items():
+                base_information(data, feature, folder)  # Informações dos grupos de sintomas
 
-            metrics_calc(data[symptoms], data['resultadoTeste'], model, folder, file_fullname)
+            metrics_calc(data[symptoms], data['resultadoTeste'], model, folder, file_fullname) # Salva informações de métricas na pasta
 
-            coefs_report = model_summary(sm.Logit(data['resultadoTeste'], data[symptoms]), folder, kind, coefs_report)
+            coefs_report = model_summary(sm.Logit(data['resultadoTeste'], data[symptoms]), folder, kind, coefs_report) # Salva um resumo e coeficientes para serem plotados
 
             basic_informations(data, file_fullname)
 

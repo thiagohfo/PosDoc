@@ -1,7 +1,5 @@
 #!/opt/anaconda3/envs/PosDoc/bin/python
 '''Arquivo para realizar testes para um único registro e poder visualizar porcentagens de chances negativa e positiva'''
-import pandas as pd
-
 from useful_functions import *
 
 data = read_data('Bases/dados-sp-1.csv')
