@@ -60,31 +60,6 @@ def read_data(file_t):
     del encode
     return data
 
-# Remover amostras com dados importantes como faltosos, as entradas são colunas para analizar
-def delete_rows_NA_values(data_t, columns_analyze_t):
-    data_t.dropna(how='any', subset=columns_analyze_t, inplace=True)
-
-# Deletando algumas colunas irrelevantes
-def delete_columns(data_t, columns_list_t):
-    data_t.drop(columns_list_t, axis=1, inplace=True)
-
-# Deleta amostras (rows) com valores diferentes (ou iguais) ao do parâmetro 'value', se baseando na columa 'column'
-def delete_rows_by_value(data_t, column_t, value_t, diff_t=True):
-    if diff_t:
-        data_t.drop(data_t[data_t[column_t] != value_t].index, inplace=True)
-    else:
-        data_t.drop(data_t[data_t[column_t] == value_t].index, inplace=True)
-
-# Alterar valores de colunas, essencialmente ajudar a tirar caracteres especiais ou palavras mal formadas
-def change_column_values(data_t, column_t, regex_exp_t, new_value_t, use_regex_t=True):
-    #print(data[column].value_counts())
-    data_t[column_t].replace(to_replace=regex_exp_t, value=new_value_t, regex=use_regex_t, inplace=True)
-    #print(data[column].value_counts())
-
-# Formatando datas, colocando no padrão yyyy-mm-dd
-def formating_dates(raw_date_t):
-    return re.sub(r'(\d{4})-(\d{2})-(\d{2})(.*)', r'\1-\2-\3', raw_date_t)
-
 # Padronizar o nome dos sintomas, tirando acentos e espaços.
 def standarding_features(raw_data_t, *features, **kwargs):
     coluna = kwargs['coluna']
@@ -102,12 +77,6 @@ def standarding_features(raw_data_t, *features, **kwargs):
                 raw_data_t[i] = 0 # Remover aqui se for para não preencher com 0 em valores faltosos
     raw_data_t[coluna] = ','.join(features_list)
     return raw_data_t
-
-def delete_rows_values_by_regex(data_t, column_t, regex_exp_t, not_include=False):
-    if not_include:
-        data_t.drop(data_t[~data_t[column_t].str.contains(regex_exp_t)].index, inplace=True)
-    else:
-        data_t.drop(data_t[data_t[column_t].str.contains(regex_exp_t)].index, inplace=True)
 
 # Útil para salvar informações de agrupamento de uma coluna em arquivo txt
 def save_value_counts_file(data_t, column_name_t):
@@ -128,6 +97,7 @@ def round_up(number_t, decimals_t=0):
 # Salvando arquivo
 def saving_data(data_t, file_t):
     data_t.to_csv(file_t, sep=';', encoding='utf-8', index=False)
+    print("Salvando arquivo")
     print("Tamanho da base: {}".format(len(data_t)))
 
 # Salvando o modelo da regressão
@@ -177,3 +147,32 @@ def dataset_balancing(data_t, features_t, kind_t):
 def directory_create(directory_t):
     if not os.path.exists(directory_t):
         os.mkdir(directory_t)
+
+def grouping_datasets(datasets_t):
+    data = read_data('Bases/{}'.format(datasets_t[0]))
+
+    if len(datasets_t) == 1:
+        return datasets_t
+    else:
+        for i in range(1, len(datasets_t)):
+            data_temp = read_data('Bases/{}'.format(datasets_t[i]))
+            data = pd.concat([data, data_temp], ignore_index=True)
+            print('Tamanho da base concatenada: {}'.format(len(data)))
+
+        for dataset in datasets_t:
+            os.remove('Bases/{}'.format(dataset))
+
+        saving_data(data, 'Bases/base_concatenada.csv')
+
+        datasets_t = os.listdir('Bases/')
+        datasets_t = [name for name in datasets_t if name[-3:] == 'csv']
+
+        return datasets_t
+
+# Limpa todas as amostras que não possuem nenhuma comorbidade
+def clean_without_conditions(data_t):
+    data_t.drop(data_t[(data_t['cardiacas'] == 0) & (data_t['diabetes'] == 0) & (data_t['respiratorias'] == 0) &
+                       (data_t['renais'] == 0) & (data_t['imunologica'] == 0) & (data_t['obesidade'] == 0) &
+                       (data_t['imunossupressao'] == 0)].index, inplace=True)
+
+    return data_t

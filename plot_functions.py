@@ -3,7 +3,7 @@ from useful_functions import *
 
 # Gráfico de barra. As entradas são os índices e os valores.
 def bar_plot(indexes_t, values_t, name_fig_t, ylim=0, xlim=0):
-    #plt.figure().add_axes([0, 0, 1, 1])
+    name_fig_t = '{}_Bar'.format(name_fig_t)
     plt.figure(figsize=(10, 6))
     plt.bar(indexes_t, values_t, width=0.4)
 
@@ -56,16 +56,16 @@ def scree_plot(pca_t):
     plt.show()
 
 # Scatter plot (gráfico de dispersão)
-def scatter_plot(data_t, X, Y):
+def scatter_plot(data_t, x_t, y_t):
     plt.figure(figsize=(10, 6))
     #plt.scatter(data_t[X], data_t[Y], c=data_t[Y], cmap='viridis')
-    plt.scatter(data_t[X], data_t[Y], c=data_t[Y], cmap=cm.get_cmap('Spectral', 2))
-    plt.xlabel(X)
-    plt.ylabel(Y)
+    plt.scatter(data_t[x_t], data_t[y_t], c=data_t[y_t], cmap=cm.get_cmap('Spectral', 2))
+    plt.xlabel(x_t)
+    plt.ylabel(y_t)
     #plt.colorbar()
     plt.show()
 
-# Plot de multiplos gráficos via Scatter
+# Plot de multiplos gráficos via Scatter, usando outra biblioteca
 def scatter_plot_PX(data_t, features_t):
     fig = PX.scatter_matrix(data_t, features_t)
     fig.update_traces(diagonal_visible=False)
@@ -73,6 +73,7 @@ def scatter_plot_PX(data_t, features_t):
 
 # Radar/Polar/Spider plot
 def radar_chart(values_t, groups_t, name_fig_t):
+    name_fig_t = '{}_Radar'.format(name_fig_t)
     largest_number = int(round_up(max(values_t), -(len(str(max(values_t))) - 1)))
 
     angles = [n / float(len(groups_t)) * 2 * pi for n in range(len(groups_t))]
@@ -126,5 +127,13 @@ def box_plot(data_t, name_fig_t):
     ax = plt.figure(figsize=(10, 6))
     ax = sns.boxplot(x='Base', y='Values', data=data_t)
     ax = sns.stripplot(x='Base', y='Values', data=data_t, hue='Symptoms', jitter=0.2, size=4)
+    plt.savefig(name_fig_t)
+    plt.close()
+
+# Histogram
+def hist_plot(x_t, y_t, name_fig_t):
+    name_fig_t = '{}_Hist'.format(name_fig_t)
+    ax = plt.figure(figsize=(10, 6))
+    ax = plt.hist(y_t, bins=x_t, density=True)
     plt.savefig(name_fig_t)
     plt.close()
