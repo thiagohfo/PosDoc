@@ -1,63 +1,81 @@
-from data_info_save import *
-from metrics_script import *
-from summary_report import *
-from useful_functions import *
-from dimension_reduction import *
-from analysis_regressions import *
-from quantitative_analysis import *
+import pandas as pd
+from plot_functions import box_plot
+from metrics_script import metrics_calc
+from summary_report import model_summary
 from preprocessing_data import preprocessing
+from data_info_save import basic_informations
+from quantitative_analysis import base_information
+from analysis_regressions import logistic_prediction
+from training_conditions import conditions_training
+from useful_functions import clean_features
+from useful_functions import read_data, dataset_balancing, loading_model, directory_create, get_files_names
 
 
 if __name__ == '__main__':
-    conditions = ['cardiacas', 'diabetes', 'respiratorias', 'renais', 'imunologica', 'obesidade', 'imunossupressao']
-    symptoms = ['tosse', 'febre', 'garganta', 'dispneia', 'cabeca', 'coriza', 'olfativos', 'gustativos']
-    others = ['tipoTeste', 'evolucaoCaso', 'profissionalSaude', 'diasSintomas', 'sexo', 'idade']
-    all = symptoms + conditions + ['resultadoTeste']
+    datas = {'other_symptoms': {'mialgia': ['mialgia', 'corpo', 'muscular'],
+                                'cabeca': ['cefaleia', 'cabeca'],
+                                'fadiga': ['fadiga', 'cansaco', 'fraqueza', 'indisposicao', 'adinamia', 'moleza',
+                                           'astenia'],
+                                'nauseas': ['nausea', 'nauseas', 'tontura', 'mal estar', 'enjoo'],
+                                'coriza': ['coriza'],
+                                'anosmia': ['olfato', 'anosmia', 'hiposmia'],
+                                'hipogeusia': ['paladar', 'hipogeusia', 'disgeusia'],
+                                'diarreia': ['diarreia'], 'febre': ['febre', 'febril'],
+                                'tosse': ['tosse']
+                                },
+             'symptoms': ['tosse', 'febre', 'garganta', 'dispneia', 'cabeca', 'coriza', 'hipogeusia', 'anosmia',
+                          'fadiga', 'nauseas', 'mialgia', 'diarreia'],
+             'conditions': ['cardiacas', 'diabetes', 'respiratorias', 'renais', 'imunologica', 'obesidade',
+                            'imunossupressao'],
+             'conditions_model': ['cardiacas', 'diabetes', 'respiratorias', 'renais', 'imunologica', 'obesidade',
+                                  'imunossupressao', 'diasSintomas', 'idade'],
+             'coefs_report_symptoms': pd.DataFrame(columns=['Base', 'Values']),
+             'coefs_report_conditions': pd.DataFrame(columns=['Base', 'Values'])
+             }
     read = True  # Se falso, as bases serão pré-processadas. Se verdadeiro, serão apenas lidas.
     train = False  # Se verdadeiro, modelos serão construídos. Se falso, usará os modelos na pasta Modelos.
+    metrics_conditions = True
+    train_conditions = False
 
-    # Pegando todas as bases
-    files = os.listdir('Bases/')
-    files = [name for name in files if name[-3:] == 'csv']
-    #files = grouping_datasets(files)
+    files = get_files_names('Bases/', False)  # Se True, bases são agrupadas.
 
     # Loop principal com todas as bases
     for name in files:
-        if read: # Leitura ou pré-processamento
-            data = read_data('Bases/{}'.format(name))
+        if read:  # Leitura ou pré-processamento
+            df = read_data('Bases/{}'.format(name))
         else:
-            data = preprocessing('Bases/{}'.format(name))
+            df = preprocessing('Bases/{}'.format(name))
 
-        #data = clean_without_conditions(data)
+        clean_features(df, datas, symptoms_t=False, conditions_t=False)
 
         coefs_report = pd.DataFrame(columns=['Base', 'Values'])
-        backup_data = data.copy() # Backup do dataset para garantir que o processo de balanceamento pega um dataset sem alterações
+        backup_data = df.copy()  # Backup do dataset para garantir que o processo de balanceamento pega sem alterações
 
-        for kind in ['Unbalanced', 'Balanced', 'Symptoms_Based', 'Symptoms_Amount']:
-            data = backup_data.copy() # Utiliza o backup para realizar operações em dataset normal
-            folder = 'Bases/{}/{}/'.format(name[:-4], kind) # Extração do nome
+        for kind in ['Unbalanced', 'Balanced', 'Symptoms_Amount']:
+            df = backup_data.copy()  # Utiliza o backup para realizar operações em dataset normal
+            folder = 'Bases/{}/{}/'.format(name[:-4], kind)  # Extração do nome
             file_fullname = '{}{}'.format(folder, name[:-4])
 
-            data = dataset_balancing(data, symptoms, kind)
+            df = dataset_balancing(df, datas['symptoms'], kind)
+
+            directory_create(['Bases/{}/'.format(name[:-4]), folder])  # Cria diretório base e subdiretórios
+
+            for feature in dict({'Symptoms': datas['symptoms'], 'Conditions': datas['conditions']}).items():
+                base_information(df, feature, folder)  # Informações dos grupos de sintomas/condições
+
+            if (kind == 'Unbalanced') & (train_conditions | metrics_conditions):
+                conditions_training(df, datas, folder, train_conditions)
 
             if train:
-                logistic_prediction(data[symptoms], data['resultadoTeste'], kind)
+                logistic_prediction(df[datas['symptoms']], df['resultadoTeste'], kind)
 
             model = loading_model('logistic_model_{}'.format(kind))  # Carregando o modelo
+            metrics_calc(df[datas['symptoms']], df['resultadoTeste'], model, folder, kind)
+            basic_informations(df, folder)
 
-            directory_create('Bases/{}/'.format(name[:-4])) # Criação do diretório para cada base
+            datas['coefs_report_symptoms'] = model_summary(df, datas, folder, kind, 'symptoms',
+                                                           datas['coefs_report_symptoms'])
 
-            directory_create(folder) # Criação do diretório para cada base e seu tipo (Balanced, Unbalanced)
-
-            for feature in dict({'Symptoms': symptoms, 'Conditions': conditions}).items():
-                base_information(data, feature, folder)  # Informações dos grupos de sintomas
-
-            metrics_calc(data[symptoms], data['resultadoTeste'], model, folder, file_fullname) # Salva informações de métricas na pasta
-
-            coefs_report = model_summary(sm.Logit(data['resultadoTeste'], data[symptoms]), folder, kind, coefs_report) # Salva um resumo e coeficientes para serem plotados
-
-            basic_informations(data, file_fullname)
-
-        box_plot(coefs_report, 'Bases/{}/boxplot'.format(name[:-4]))
+            box_plot(datas['coefs_report_symptoms'], 'Bases/{}/boxplot_symptoms'.format(name[:-4]), 'Symptoms')
 
     exit(0)
