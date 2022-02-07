@@ -47,7 +47,6 @@ if __name__ == '__main__':
             df = preprocessing('Bases/{}'.format(name))
 
         clean_features(df, datas, symptoms_t=False, conditions_t=False)
-
         coefs_report = pd.DataFrame(columns=['Base', 'Values'])
         backup_data = df.copy()  # Backup do dataset para garantir que o processo de balanceamento pega sem alterações
 
