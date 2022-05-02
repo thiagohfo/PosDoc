@@ -1,6 +1,6 @@
 import os
 import re
-import pickle
+import joblib
 import chardet  # Detecta encode do arquivo
 from math import *
 import pandas as pd
@@ -132,16 +132,14 @@ def saving_data(df_t, file_t):
 def saving_model(model_t, name_model_t):
     model_file = 'Modelos/{}.pkl'.format(name_model_t)
 
-    with open(model_file, 'wb') as file:
-        pickle.dump(model_t, file)
+    joblib.dump(model_t, model_file)
 
 
 # Carregando o modelo da regressão
 def loading_model(name_model_t):
     model_file = 'Modelos/{}.pkl'.format(name_model_t)
 
-    with open(model_file, 'rb') as file:
-        model_loaded = pickle.load(file)
+    model_loaded = joblib.load(model_file)
 
     return model_loaded
 

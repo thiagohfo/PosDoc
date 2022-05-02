@@ -1,12 +1,12 @@
 from math import pi
+import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.cm as cm
-import plotly.express as px
 import matplotlib.pyplot as plt
-from useful_functions import round_up
 from scipy.stats import chi2_contingency
 from sklearn.metrics import roc_curve, auc
+from useful_functions import round_up, directory_create
 
 
 # Gráfico de barra. As entradas são os índices e os valores.
@@ -80,13 +80,6 @@ def scatter_plot(data_t, x_t, y_t):
     plt.show()
 
 
-# Plot de multiplos gráficos via Scatter, usando outra biblioteca
-def scatter_plot_px(data_t, features_t):
-    fig = px.scatter_matrix(data_t, features_t)
-    fig.update_traces(diagonal_visible=False)
-    fig.show()
-
-
 # Radar/Polar/Spider plot
 def radar_chart(values_t, groups_t, name_fig_t):
     name_fig_t = '{}_Radar'.format(name_fig_t)
@@ -153,4 +146,29 @@ def hist_plot(x_t, y_t, name_fig_t):
     plt.figure(figsize=(10, 6))
     plt.hist(y_t, bins=x_t, density=True)
     plt.savefig(name_fig_t)
+    plt.close()
+
+
+# Diagnostic Plot
+def diagn_res_fit(model_t, df_t, name_fig_t, kind_t):
+    directory_create([name_fig_t, '{}{}/'.format(name_fig_t, kind_t)])
+    # Variáveis
+    model_fitted = model_t.fittedvalues  # model values
+    model_residuals = model_t.resid_pearson  # model residuals
+    model_abs_resid = np.abs(model_residuals)  # absolute residuals
+
+    # Residuals X Fitted
+    plt.figure(figsize=(10, 6))
+    sns.residplot(model_fitted, df_t.columns[-1], data=df_t, lowess=True, scatter_kws={'alpha': 0.5},
+                  line_kws={'color': 'red', 'lw': 1, 'alpha': 0.8})
+    plt.title('Residuals vs Fitted')
+    plt.xlabel('Fitted values')
+    plt.ylabel('Residuals')
+    abs_resid = model_abs_resid.sort_values(ascending=False)
+    abs_resid_top_3 = abs_resid[:3]
+
+    for i in abs_resid_top_3.index:
+        plt.annotate(i, xy=(model_fitted[i], model_residuals[i]))
+
+    plt.savefig('{}{}/Residuals X Fitted'.format(name_fig_t, kind_t))
     plt.close()

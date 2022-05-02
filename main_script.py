@@ -1,3 +1,4 @@
+import warnings
 import pandas as pd
 from plot_functions import box_plot
 from metrics_script import metrics_calc
@@ -12,6 +13,7 @@ from useful_functions import read_data, dataset_balancing, loading_model, direct
 
 
 if __name__ == '__main__':
+    warnings.filterwarnings("ignore")
     datas = {'other_symptoms': {'mialgia': ['mialgia', 'corpo', 'muscular'],
                                 'cabeca': ['cefaleia', 'cabeca'],
                                 'fadiga': ['fadiga', 'cansaco', 'fraqueza', 'indisposicao', 'adinamia', 'moleza',
@@ -62,7 +64,7 @@ if __name__ == '__main__':
             for feature in dict({'Symptoms': datas['symptoms'], 'Conditions': datas['conditions']}).items():
                 base_information(df, feature, folder)  # Informações dos grupos de sintomas/condições
 
-            if (kind == 'Unbalanced') & (train_conditions | metrics_conditions):
+            if (kind == 'Balanced') & (train_conditions | metrics_conditions):
                 conditions_training(df, datas, folder, train_conditions)
 
             if train:

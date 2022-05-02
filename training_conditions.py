@@ -25,5 +25,5 @@ def conditions_training(df_t, datas_t, folder_t, train_t=False):
                      folder_t, '{}-{}'.format(case[0], case[1]), 'Conditions')
         datas_t['coefs_report_conditions'] = model_summary(df_t, datas_t, folder_t, case[1], 'conditions',
                                                            datas_t['coefs_report_conditions'], case)
-        box_plot(datas_t['coefs_report_conditions'], '{}boxplot_conditions'.format(folder_t[:-11]), 'Conditions')
+        box_plot(datas_t['coefs_report_conditions'], '{}boxplot_conditions'.format(folder_t[:-9]), 'Conditions')
         df_t = backup_df.copy()
