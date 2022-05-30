@@ -1,4 +1,4 @@
-"""Análises de regressão, contendo Regressão Linear, Ridge e Lasso"""
+"""Análises de regressão, contendo Regressão Linear, Ridge, Lasso e Regressão Logística"""
 import numpy as np
 # import statsmodels.api as sm
 import matplotlib.pyplot as plt
@@ -8,19 +8,19 @@ from sklearn.linear_model import Lasso, Ridge, LinearRegression, LogisticRegress
 
 
 # Predição Regressão Linear
-def lr_prediction(data_t_x, data_t_y, test_size_t=0.3, random_state_t=0):
-    x_train, x_test, y_train, y_test = train_test_split(data_t_x, data_t_y, test_size=test_size_t,
+def lr_prediction(data_t_X, data_t_y, test_size_t=0.3, random_state_t=0):
+    X_train, X_test, y_train, y_test = train_test_split(data_t_X, data_t_y, test_size=test_size_t,
                                                         random_state=random_state_t)
     lr = LinearRegression()
-    lr.fit(x_train, y_train)
+    lr.fit(X_train, y_train)
 
     # Salvando o modelo
     saving_model(lr, 'linear_model')
 
     # Dados da regressão
-    # y_pred = lr.predict(x_test)
-    train_score = lr.score(x_train, y_train)
-    test_score = lr.score(x_test, y_test)
+    # y_pred = lr.predict(X_test)
+    train_score = lr.score(X_train, y_train)
+    test_score = lr.score(X_test, y_test)
 
     # Print dados da regressão linear
     print("Coeficiente LR: {}".format(lr.coef_))
@@ -37,19 +37,19 @@ def lr_prediction(data_t_x, data_t_y, test_size_t=0.3, random_state_t=0):
 
 
 # Predição Ridge
-def rr_prediction(data_t_x, data_t_y, alpha_t=None, test_size_t=0.3, random_state_t=0):
+def rr_prediction(data_t_X, data_t_y, alpha_t=None, test_size_t=0.3, random_state_t=0):
     if alpha_t is None:
         alpha_t = [0.01, 1, 100]
 
     rr_coef = []
 
     for i in alpha_t:
-        x_train, x_test, y_train, y_test = train_test_split(data_t_x, data_t_y, test_size=test_size_t,
+        X_train, X_test, y_train, y_test = train_test_split(data_t_X, data_t_y, test_size=test_size_t,
                                                             random_state=random_state_t)
         rr = Ridge(alpha=i)
-        rr.fit(x_train, y_train)
-        train_score = rr.score(x_train, y_train)
-        test_score = rr.score(x_test, y_test)
+        rr.fit(X_train, y_train)
+        train_score = rr.score(X_train, y_train)
+        test_score = rr.score(X_test, y_test)
         coeff_used = np.sum(rr.coef_ != 0)
 
         print("Training score: {:.2f}%".format(train_score * 100))
@@ -58,7 +58,7 @@ def rr_prediction(data_t_x, data_t_y, alpha_t=None, test_size_t=0.3, random_stat
 
         rr_coef.append(rr.coef_)
 
-    lr_coef = lr_prediction(data_t_x, data_t_y)
+    lr_coef = lr_prediction(data_t_X, data_t_y)
 
     plt.plot(rr_coef[0], alpha=0.7, linestyle='none', marker='*', markersize=5, color='red',
              label=r'Ridge; $\alpha = 0.01$', zorder=7)
@@ -76,7 +76,7 @@ def rr_prediction(data_t_x, data_t_y, alpha_t=None, test_size_t=0.3, random_stat
 
 
 # Predição Lasso
-def lasso_prediction(data_t_x, data_t_y, alpha_t=None, test_size_t=0.3, random_state_t=0):
+def lasso_prediction(data_t_X, data_t_y, alpha_t=None, test_size_t=0.3, random_state_t=0):
     if alpha_t is None:
         alpha_t = [1, 0.01, 0.00001]
 
@@ -84,12 +84,12 @@ def lasso_prediction(data_t_x, data_t_y, alpha_t=None, test_size_t=0.3, random_s
     lasso_coef = []
 
     for i in alpha_t:
-        x_train, x_test, y_train, y_test = train_test_split(data_t_x, data_t_y, test_size=test_size_t,
+        X_train, X_test, y_train, y_test = train_test_split(data_t_X, data_t_y, test_size=test_size_t,
                                                             random_state=random_state_t)
         lasso = Lasso(alpha=i, max_iter=max_iteration)
-        lasso.fit(x_train, y_train)
-        train_score = lasso.score(x_train, y_train)
-        test_score = lasso.score(x_test, y_test)
+        lasso.fit(X_train, y_train)
+        train_score = lasso.score(X_train, y_train)
+        test_score = lasso.score(X_test, y_test)
         coeff_used = np.sum(lasso.coef_ != 0)
 
         print("Training score: {:.2f}%".format(train_score * 100))
@@ -98,7 +98,7 @@ def lasso_prediction(data_t_x, data_t_y, alpha_t=None, test_size_t=0.3, random_s
 
         lasso_coef.append(lasso.coef_)
 
-    lr_coef = lr_prediction(data_t_x, data_t_y)
+    lr_coef = lr_prediction(data_t_X, data_t_y)
 
     plt.plot(lasso_coef[0], alpha=0.7, linestyle='none', marker='*', markersize=5, color='red',
              label=r'Lasso; $\alpha = 1$', zorder=7)
@@ -116,19 +116,19 @@ def lasso_prediction(data_t_x, data_t_y, alpha_t=None, test_size_t=0.3, random_s
 
 
 # Predição Regressão Logística
-def logistic_prediction(df_t_x, df_t_y, kind_t, test_size_t=0.3, random_state_t=0):
-    x_train, x_test, y_train, y_test = train_test_split(df_t_x, df_t_y, test_size=test_size_t,
+def logistic_prediction(df_t_X, df_t_y, kind_t, test_size_t=0.3, random_state_t=0):
+    X_train, X_test, y_train, y_test = train_test_split(df_t_X, df_t_y, test_size=test_size_t,
                                                         random_state=random_state_t)
     logistic = LogisticRegression(solver='liblinear', random_state=0)
-    logistic.fit(x_train, y_train)
+    logistic.fit(X_train, y_train)
 
     # Salvando o modelo
     saving_model(logistic, 'logistic_model_{}'.format(kind_t))
 
     # Dados da regressão
-    # y_pred = logistic.predict(x_test)
-    train_score = logistic.score(x_train, y_train)
-    test_score = logistic.score(x_test, y_test)
+    # y_pred = logistic.predict(X_test)
+    train_score = logistic.score(X_train, y_train)
+    test_score = logistic.score(X_test, y_test)
 
     # Print dados da regressão linear
     print("Train Score: {:.2f}%".format(train_score * 100))

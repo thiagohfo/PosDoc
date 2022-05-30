@@ -27,6 +27,7 @@ def test_conditions(datas_t):
     test_case = pd.DataFrame(data=np.array([inputs]), columns=datas_t['conditions_model'])
     test_case = test_case.apply(convert_to_categorical, axis=1)
     internar = False
+    msg = ''
 
     for case in [['Cura', 'Óbito'], ['Cura', 'Internado']]:
         model = loading_model('logistic_model_{}_{}'.format(case[0], case[1]))
@@ -34,15 +35,17 @@ def test_conditions(datas_t):
 
         if case[1] == 'Óbito':
             if (chances[0][0] * 100) < 32:
-                print('PCovid 3 com chance de óbito: {:.2f}%'.format(chances[0][1] * 100))
+                msg = 'PCovid 3 com chance de óbito: {:.2f}%'.format(chances[0][1] * 100)
                 internar = False
             else:
-                print('PCovid 1 com chance de cura: {:.2f}%'.format(chances[0][0] * 100))
+                msg = 'PCovid 1 com chance de cura: {:.2f}%'.format(chances[0][0] * 100)
                 internar = True
         elif (case[1] == 'Internado') & internar:
             if (chances[0][1] * 100) > 55:
-                print('PCovid 2 com chance de precisar de internação: {:.2f}%'.format(chances[0][1] * 100))
+                msg = 'PCovid 2 com chance de precisar de internação: {:.2f}%'.format(chances[0][1] * 100)
                 internar = False
+
+    print(msg)
 
 
 if __name__ == '__main__':

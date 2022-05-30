@@ -1,3 +1,7 @@
+"""
+Arquivo utilizado com bases atualizadas até o abril de 2022.
+Não válido para as bases atualizadas em maio de 2022.
+"""
 import os
 import numpy as np
 import pandas as pd

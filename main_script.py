@@ -8,6 +8,7 @@ from data_info_save import basic_informations
 from quantitative_analysis import base_information
 from analysis_regressions import logistic_prediction
 from training_conditions import conditions_training
+from algorithms import naive_bayes, decision_tree
 from useful_functions import clean_features
 from useful_functions import read_data, dataset_balancing, loading_model, directory_create, get_files_names
 
@@ -69,8 +70,12 @@ if __name__ == '__main__':
 
             if train:
                 logistic_prediction(df[datas['symptoms']], df['resultadoTeste'], kind)
+                # naive_bayes(df[datas['symptoms']], df['resultadoTeste'], kind)
+                # decision_tree(df[datas['symptoms']], df['resultadoTeste'], kind)
 
             model = loading_model('logistic_model_{}'.format(kind))  # Carregando o modelo
+            # model = loading_model('naive_bayes_model_{}'.format(kind))  # Carregando o modelo
+            # model = loading_model('decision_tree_model_{}'.format(kind))  # Carregando o modelo
             metrics_calc(df[datas['symptoms']], df['resultadoTeste'], model, folder, kind)
             basic_informations(df, folder)
 
