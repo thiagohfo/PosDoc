@@ -7,9 +7,11 @@ from sklearn.model_selection import cross_validate
 # Cálculo das métricas
 def metrics_calc(X_df_t, y_df_t, model_t, folder_t, model_name_t, feature_t='Symptoms'):
     y_true = y_df_t
+    # y_probs = model_t.predict_proba(X_df_t)
     y_probs = model_t.decision_function(X_df_t)
 
     # Salva o plot da Curva ROC
+    # roc_curve_plot(y_true, y_probs[:, 1], '{}{}_'.format(folder_t, feature_t))
     roc_curve_plot(y_true, y_probs, '{}{}_'.format(folder_t, feature_t))
 
     # Salvando informações em arquivos
